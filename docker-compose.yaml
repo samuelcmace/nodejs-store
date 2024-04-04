@@ -1,0 +1,19 @@
+# Simple Docker Compose File to Run the Storefront Application
+version: "0.0.0-dev"
+
+services:
+  web_application:
+    build: ./
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DEPLOYMENT=docker-compose
+  database:
+    image: "mongo:latest"
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin

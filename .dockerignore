@@ -1,0 +1,2 @@
+# Exclude the node modules from the Dockerfile.
+/node_modules

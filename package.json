@@ -4,7 +4,8 @@
   "description": "Full-Stack Store Application Written in NodeJS/ExpressJS/MongoDB",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Samuel Mace",
@@ -12,7 +13,9 @@
   "dependencies": {
     "ejs": "^3.1.9",
     "express": "^4.19.2",
-    "mongodb": "^6.5.0",
+    "mongodb": "^6.5.0"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.0"
   }
 }
