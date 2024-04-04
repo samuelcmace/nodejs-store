@@ -1,7 +1,7 @@
 const express = require("express");
 const routes = require("./routes");
 
-const web_hostname = "127.0.0.1";
+const web_hostname = "0.0.0.0";
 const web_port = 3000;
 
 const app = express();
