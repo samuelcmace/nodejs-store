@@ -14,5 +14,14 @@ function setup_routes(app) {
 
 }
 
-module.exports = {setup_routes};
+function setup_api_routes(app) {
+
+    app.get("/api/healthcheck", (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ status: "healthy" }));
+    });
+
+}
+
+module.exports = {setup_routes, setup_api_routes};
 

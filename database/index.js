@@ -18,19 +18,31 @@ class DatabaseConnection {
             mongodb_hostname = "localhost";
         }
 
-        let mongo_connection_string = `mongodb://admin:admin@${mongodb_hostname}:27017/`;
+        let mongo_connection_string = `mongodb://${mongodb_hostname}:27017/`;
         let databaseConnection = new MongoClient(mongo_connection_string);
     }
 
     // Function to set up the MongoDB database connection.
-    connect = async function() {
+    connect = new Promise((resolve, reject) => {
         console.log("Connecting to MongoDB...");
-        await databaseConnection.connect();
-        console.log("Successfully Connected to MongoDB!");
-    }
+        try {
+            databaseConnection.connect();
+            resolve("Successfully Connected to MongoDB!");
+        } catch(error) {
+            reject("Error in connecting to the database: " + error);
+        }
+    });
 
     constructor() {
-        connect();
+        connect().then(result => {
+            console.log(result);
+        }).error(error => {
+            console.log(error);
+        });
+    }
+
+    generateFakeData = function() {
+        
     }
 }
 

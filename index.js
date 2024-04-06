@@ -16,6 +16,9 @@ app.set("views", "views");
 
 routes.setup_routes(app);
 
+// Establishes the Optional API Routes for the Application
+routes.setup_api_routes(app);
+
 const server = app.listen(web_port, web_hostname, () => {
     console.log(`Server listening on ${web_hostname}:${web_port}...`);
 });

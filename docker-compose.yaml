@@ -2,18 +2,78 @@
 version: "0.0.0-dev"
 
 services:
+
+  # The container representing the Main Node.JS Application
   web_application:
     build: ./
     restart: unless-stopped
     ports:
       - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
     environment:
       - DEPLOYMENT=docker-compose
+    healthcheck:
+      test: "curl -H 'Accept: application/json' -X GET 'http://localhost/api/healthcheck'"
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+
+  # One-off container used to tie together the main MongoDB instance with it's corresponding replication sets (once all three services pass the health checks).
+  # This container is to be disregarded once the replication sets are tied together (hence the no-restart policy).
+  dbreplsetup:
+    image: "mongo:latest"
+    restart: no
+    depends_on:
+      database:
+        condition: service_healthy
+      dbreplset01:
+        condition: service_healthy
+      dbreplset02:
+        condition: service_healthy
+    entrypoint: >
+      mongosh database:27017/admin --quiet --eval
+      '
+        rs.initiate();
+        rs.add({ host: "dbreplset01:27017", priority: 0, votes: 0 });
+        rs.add({ host: "dbreplset02:27017", priority: 0, votes: 0 });
+      '
+
+  # The container representing the database for the application.
   database:
     image: "mongo:latest"
     restart: unless-stopped
     ports:
       - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin
+    command: mongod --replSet rs0
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/admin --quiet
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
+
+  # The container representing the first replication set.
+  dbreplset01:
+    image: "mongo:latest"
+    restart: unless-stopped
+    command: mongod --replSet rs0
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/admin --quiet
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
+
+  # The container representing the second replication set.
+  dbreplset02:
+    image: "mongo:latest"
+    restart: unless-stopped
+    command: mongod --replSet rs0
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/admin --quiet
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
