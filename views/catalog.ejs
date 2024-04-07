@@ -8,5 +8,15 @@
 </head>
 <body>
     <h1>Catalog</h1>
+    <div class="catalog-container">
+        <% for(let i = 0; i < catalog.length; i++) { %>
+            <div class="catalog-item">
+                <img class="catalog-item-image" src="<%= catalog[i].image %>">
+                <p class="catalog-item-name"><%= catalog[i].name %></p>
+                <p class="catalog-item-price"><%= catalog[i].price %></p>
+                <p class="catalog-item-description"><%= catalog[i].description %></p>
+            </div>
+        <% } %>
+    </div>
 </body>
 </html>

@@ -1,3 +1,5 @@
+const {Services} = require("../services");
+
 function setup_routes(app) {
 
     app.get("/", (req, res) => {
@@ -5,11 +7,19 @@ function setup_routes(app) {
     });
 
     app.get("/catalog", (req, res) => {
-        res.render("catalog");
+        Services.get_catalog_items().then(items => {
+            res.render("catalog", {catalog: items});
+        }).catch(error => {
+            res.render("error", {error: error});
+        });
     });
 
     app.post("/generate-data", (req, res) => {
-        res.render("generate-data");
+        Services.populate_catalog_items().then(result => {
+            res.render("generate-data");
+        }).catch(error => {
+            res.render("error", {error: error});
+        });
     });
 
 }
@@ -24,4 +34,3 @@ function setup_api_routes(app) {
 }
 
 module.exports = {setup_routes, setup_api_routes};
-

@@ -2,7 +2,7 @@ const {MongoClient} = require("mongodb");
 
 // Create a class to represent a connection to the MongoDB database.
 class DatabaseConnection {
-    static {
+    constructor() {
         // If the environment in which the application is being executed is inside Docker Compose, set the
         // hostname for the MongoDB database to "database" -- which is created and managed by the Docker Compose
         // Networking stack. If the application is being launched inside a container but the database is being
@@ -18,31 +18,14 @@ class DatabaseConnection {
             mongodb_hostname = "localhost";
         }
 
-        let mongo_connection_string = `mongodb://${mongodb_hostname}:27017/`;
-        let databaseConnection = new MongoClient(mongo_connection_string);
+        this.mongo_connection_string = `mongodb://${mongodb_hostname}:27017`;
+        this.connection = new MongoClient(this.mongo_connection_string);
     }
 
-    // Function to set up the MongoDB database connection.
-    connect = new Promise((resolve, reject) => {
-        console.log("Connecting to MongoDB...");
-        try {
-            databaseConnection.connect();
-            resolve("Successfully Connected to MongoDB!");
-        } catch(error) {
-            reject("Error in connecting to the database: " + error);
-        }
-    });
-
-    constructor() {
-        connect().then(result => {
-            console.log(result);
-        }).error(error => {
-            console.log(error);
-        });
-    }
-
-    generateFakeData = function() {
-        
+    connect = async function() {
+        console.log(`Connecting to MongoDB at ${this.mongo_connection_string}`);
+        await this.connection.connect();
+        console.log("Successfully Connected to MongoDB!");
     }
 }
 
@@ -51,9 +34,14 @@ class DBConnectionPool {
     constructor() {
         throw new Error("Error: This is a Singleton object! Use DatabaseConnection.getInstance() instead.");
     }
-    static getInstance() {
+    static getInstance = async function() {
         if(!DBConnectionPool.instance) {
             DBConnectionPool.instance = new DatabaseConnection();
+            try {
+                await DBConnectionPool.instance.connect();
+            } catch (exception) {
+                console.error(exception);
+            }
         }
         return DBConnectionPool.instance;
     }
