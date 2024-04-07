@@ -6,19 +6,21 @@ const {faker} = require("@faker-js/faker");
 // lean and promotes the MVCS (Model-View-Controller-Service) architecture.
 class Services {
 
-    static populate_catalog_items = function() {
+    static populate_catalog_items = async function() {
         return new Promise(async (resolve, reject) => {
+            let db_instance, db_connection, session;
             try {
-                const db_connection = await DBConnectionPool.getInstance().connection;
-                const session = db_connection.startSession();
-    
-                const transation = session.startTransation();
+                db_instance = await DBConnectionPool.getInstance();
+                db_connection = db_instance.connection;
+                session = db_connection.startSession();
+
+                await session.startTransaction();
                 for(let i = 0; i < 20; i++) {
                     let name = faker.word.adjective() + " " + faker.word.noun();
                     let price = faker.commerce.price({ min: 100, max: 200 });
                     let description = faker.lorem.paragraphs(3);
                     let image = faker.image.urlLoremFlickr({ category: 'food' });
-                    this.db_connection.db("catalog").collection("item").insertOne({
+                    await db_connection.db("catalog").collection("item").insertOne({
                         "_id": i,
                         "name": name,
                         "price": price,
@@ -27,10 +29,10 @@ class Services {
                     }, { session });
                 }
                 resolve("Transaction succeeded: Database successfully populated with random data!");
-                await session.commitTransation();
+                await session.commitTransaction();
             } catch (error) {
                 reject("Transaction failed: " + error);
-                await session.abortTransation();
+                await session.abortTransaction();
             } finally {
                 await session.endSession();
             }
@@ -40,7 +42,8 @@ class Services {
     static get_catalog_items = function() {
         return new Promise(async (resolve, reject) => {
             try {
-                const db_connection = await DBConnectionPool.getInstance().connection;
+                const db_instance = await DBConnectionPool.getInstance();
+                const db_connection = db_instance.connection;
     
                 let items = [];
                 let cursor = db_connection.db("catalog").collection("item").find();
