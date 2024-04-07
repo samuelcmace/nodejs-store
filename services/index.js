@@ -20,13 +20,15 @@ class Services {
                     let price = faker.commerce.price({ min: 100, max: 200 });
                     let description = faker.lorem.paragraphs(3);
                     let image = faker.image.urlLoremFlickr({ category: 'food' });
-                    await db_connection.db("catalog").collection("item").insertOne({
+                    await db_connection.db("catalog").collection("item").updateOne(
+                    {"_id": i},
+                    {$set: {
                         "_id": i,
                         "name": name,
                         "price": price,
                         "description": description,
                         "image": image
-                    }, { session });
+                    }}, {upsert: true, session});
                 }
                 resolve("Transaction succeeded: Database successfully populated with random data!");
                 await session.commitTransaction();
