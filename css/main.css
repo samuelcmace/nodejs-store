@@ -14,3 +14,26 @@ body {
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: large;
 }
+
+.catalog-container {
+    display: grid;
+    column-gap: 50px;
+    row-gap: 50px;
+    grid-template-columns: repeat(auto-fit, minmax(10em, 20em));
+}
+
+.catalog-item {
+    display: inline-block;
+}
+
+.catalog-item-image {
+    max-width: 10em;
+}
+
+.catalog-item-name {
+    font-weight: bold;
+}
+
+.catalog-item-description {
+    /*visibility: hidden;*/
+}

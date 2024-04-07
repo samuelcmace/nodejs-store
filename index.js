@@ -10,6 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 app.use('/css', express.static('css'));
+app.use('/js', express.static('js'));
 
 app.set("view engine", "ejs");
 app.set("views", "views");
