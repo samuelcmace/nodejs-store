@@ -46,10 +46,10 @@ class Services {
             try {
                 const db_instance = await DBConnectionPool.getInstance();
                 const db_connection = db_instance.connection;
-    
+
                 let items = [];
                 let cursor = db_connection.db("catalog").collection("item").find();
-    
+
                 for await(const element of cursor) {
                     items.push(element);
                 }
