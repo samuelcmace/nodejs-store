@@ -11,7 +11,7 @@ RUN npm install --omit=dev
 
 # Set the deployment environment for the container to Docker such that the application knows how to
 # interface with the running container.
-ENV DEPLOYMENT = "docker"
+ENV MONGO_CONNECTION_STRING = "mongodb://localhost:27017/"
 
 # Specify the commands to be executed when the contianer is launched.
 CMD [ "node", "index.js" ]

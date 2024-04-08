@@ -8,5 +8,18 @@
 </head>
 <body>
     <h1>Catalog</h1>
+    <div class="catalog-container">
+        <% for(let i = 0; i < catalog.length; i++) { %>
+            <div class="catalog-item" id="catalogItem<%= catalog[i]._id %>">
+                <p class="catalog-item-id">Item ID: <span><%= catalog[i]._id %></span></p>
+                <img class="catalog-item-image" src="<%= catalog[i].image %>" alt="Catalog Item Image">
+                <p class="catalog-item-name"><%= catalog[i].name %></p>
+                <p class="catalog-item-price"><%= catalog[i].price %></p>
+                <p class="catalog-item-description"><%= catalog[i].description %></p>
+            </div>
+        <% } %>
+    </div>
+    <a href="/">Return to Homepage</a>
+    <script src="/js/catalog.js"></script>
 </body>
 </html>
