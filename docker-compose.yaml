@@ -4,21 +4,21 @@ version: "0.0.0-dev"
 services:
 
   # The container representing the Main Node.JS Application
-  web_application:
-    build: ./
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    depends_on:
-      database:
-        condition: service_healthy
-    environment:
-      - MONGO_CONNECTION_STRING=mongodb://host.docker.internal:27017/
-    healthcheck:
-      test: "curl -H 'Accept: application/json' -X GET 'http://localhost/api/healthcheck'"
-      interval: 15s
-      timeout: 5s
-      start_period: 15s
+#  web_application:
+#    build: ./
+#    restart: unless-stopped
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      database:
+#        condition: service_healthy
+#    environment:
+#      - MONGO_CONNECTION_STRING=mongodb://database:27017,dbreplset01:27017,dbreplset02:27017/?replicaSet=rs0
+#    healthcheck:
+#      test: "curl -H 'Accept: application/json' -X GET 'http://localhost/api/healthcheck'"
+#      interval: 15s
+#      timeout: 5s
+#      start_period: 15s
 
   # One-off container used to tie together the main MongoDB instance with it's corresponding replication sets (once all
   # three services pass the health checks). This container is to be disregarded once the replication sets are tied
@@ -26,7 +26,6 @@ services:
   dbreplsetup:
     image: "mongo:latest"
     restart: no
-    network_mode: "host"
     depends_on:
       database:
         condition: service_healthy
@@ -35,11 +34,11 @@ services:
       dbreplset02:
         condition: service_healthy
     entrypoint: >
-      mongosh host.docker.internal:27017/admin --quiet --eval
+      mongosh database:27017/admin --quiet --eval
       '
         rs.initiate();
-        rs.add({ host: "host.docker.internal:27018", priority: 0, votes: 0 });
-        rs.add({ host: "host.docker.internal:27019", priority: 0, votes: 0 });
+        rs.add({ host: "dbreplset01:27017", priority: 0, votes: 0 });
+        rs.add({ host: "dbreplset02:27017", priority: 0, votes: 0 });
       '
 
   # The container representing the database for the application.
@@ -48,7 +47,7 @@ services:
     restart: unless-stopped
     ports:
       - "27017:27017"
-    command: mongod --replSet rs0 --bind_ip_all --port 27017
+    command: mongod --replSet rs0 --bind_ip_all
     healthcheck:
       test: echo 'rs.status().ok' | mongosh localhost:27017/admin --quiet
       interval: 5s
@@ -63,11 +62,9 @@ services:
   dbreplset01:
     image: "mongo:latest"
     restart: unless-stopped
-    ports:
-      - "27018:27018"
-    command: mongod --replSet rs0 --bind_ip_all --port 27018
+    command: mongod --replSet rs0 --bind_ip_all
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27018/admin --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/admin --quiet
       interval: 5s
       timeout: 5s
       start_period: 5s
@@ -80,11 +77,9 @@ services:
   dbreplset02:
     image: "mongo:latest"
     restart: unless-stopped
-    ports:
-      - "27019:27019"
-    command: mongod --replSet rs0 --bind_ip_all --port 27019
+    command: mongod --replSet rs0 --bind_ip_all
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27019/admin --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/admin --quiet
       interval: 5s
       timeout: 5s
       start_period: 5s

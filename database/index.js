@@ -11,7 +11,7 @@ class DatabaseConnection {
 
         this.mongo_connection_string = process.env.MONGO_CONNECTION_STRING;
         if(this.mongo_connection_string === undefined) {
-            this.mongo_connection_string = "mongodb://localhost:27017/";
+            this.mongo_connection_string = "mongodb://localhost:27017/?directConnection=true";
         }
 
         this.connection = new MongoClient(this.mongo_connection_string);
