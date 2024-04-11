@@ -9,7 +9,7 @@ Completed in partial fulfillment of the Advanced Database class at UW Green Bay.
 There are two primary ways of running the application &ndash; on bare metal or via the Docker Compose containerization
 stack. If you utilize Docker Compose, the necessary database instances, their corresponding replication sets, and the
 deployment of the web application itself will be taken care of for you. However, if you do not wish to use Docker
-Compose, you may manage your own instance of MongoDB and it's corresponding replication sets at your own discretion. You
+Compose, you may manage your own instance of MongoDB and its corresponding replication sets at your own discretion. You
 can also choose to host certain parts of the application inside Docker Compose (such as the database) while hosting
 other parts (such as the web application) on bare metal &ndash; a process which we will cover more in-depth later on.
 
@@ -17,8 +17,12 @@ other parts (such as the web application) on bare metal &ndash; a process which 
 
 The recommended way to run the application is using Docker Compose &ndash; a simple container orchestration system
 designed for simple projects (much like this one). Working with Docker Compose will require the installation
-of [Docker Desktop](https://www.docker.com/products/docker-desktop/) on most platforms. On Windows, this can be
-accomplished via the [Chocolatey package manager](https://chocolatey.org/)in an admin PowerShell prompt:
+of [Docker Desktop](https://www.docker.com/products/docker-desktop/) on most platforms or the Docker Engine on Linux (
+Other containerization platforms such as
+Podman should also work, but are untested).
+
+To install Docker Desktop on Windows via the [Chocolatey package manager](https://chocolatey.org/), execute the
+following in an admin PowerShell prompt:
 
 ```shell
 choco install docker-desktop
@@ -39,14 +43,23 @@ the following:
 ![Docker Compose Cluster Running in Docker Desktop](docs/screenshots/docker_compose.png)
 
 Should you desire to delete the container deployment, you can execute the following commands when located in the project
-directory:
+directory (you can append the `-v` flag to delete the included Docker volumes):
 
 ```shell
 docker compose down
 ```
 
 Should you wish to make any changes to the containers, you can repeat this process (deleting the container deployment,
-rebuilding it, and redeploying it to Compose), and the instances should be updated accordingly.
+rebuilding it, and redeploying it to Compose), and the instances should be updated accordingly. Additionally, if you
+wish only to update the `web_application` container itself (while keeping the other instances up and running), you
+can execute the following:
+
+```shell
+docker compose up -d --no-deps --build web_application
+```
+
+The `--build` flag passed to Docker Compose will re-build the necessary Dockerfile to run the Node.js application and
+replace the current `web_application` container with the newly built one.
 
 ## Bare Metal
 
@@ -72,17 +85,14 @@ npm install
 ```
 
 After doing this, you have two choices for the database: you can either choose to manually host them yourself on bare
-metal, or utilize Docker Compose for the database portion (while hosting the web application on bare metal). If you so
-choose to host the MongoDB instances on bare metal,
-the [official MongoDB documentation](https://www.mongodb.com/docs/manual/installation/) should be of great assistance.
-~~However, if you decide to run the database portion inside Docker Compose, you can feel free to comment-out the web
-application portion (marked as `web_application`) inside the yaml file.~~ NOTE: Although this should, in theory, work,
-it does not work at the present moment, unfortunately. Unfortunately, there are limitations surrounding how MongoDB
-replication sets are configured to listen that make this quite difficult to configure in a flexible manner. For this
-reason, it is recommended to use Docker Compose _or_ bare metal for the _entire application stack_ at the current moment.
+metal, or use Docker Compose for the database portion (while hosting the web application on bare metal).
+If you choose to host the MongoDB instances on bare metal,
+the [official MongoDB documentation](https://www.mongodb.com/docs/manual/installation/) should be of great
+assistance. However, if you decide to run the database portion inside Docker Compose, you can feel free to comment-out
+the web application portion (marked as `web_application`) inside the yaml file and run the Docker Compose stack as
+mentioned above.
 
-Once you have the database running properly, you can use `npm start` to run the application using the `nodemon` on the
-command line like so:
+Then, to run the application using `nodemon`, execute the following in the terminal:
 
 ```shell
 npm start
@@ -92,9 +102,16 @@ npm start
 
 The project is currently structured with the root `index.js` file representing the entrypoint of the application. When
 this file is executed on the Node.js runtime, it will access other files within the directory structure of the project
-in an as-needed basis.
+on an as-needed basis.
 
 ## Routes
+
+The project structure has been broken down into two primary routes: _web_ routes and _API_ routes.
+
+While web routes are intended to be accessed in the web browser, API routes are called by the browser automatically when
+the user completes certain actions (such as adding an item to the shopping cart or checking out).
+
+### Web Routes
 
 The `/routes` directory stores the content responsible for the setting up the routing information for the project. Some
 of the routes used in the project include:
@@ -103,6 +120,14 @@ of the routes used in the project include:
   current store catalog as defined in the database.
 - `/generate-data` &ndash; which accepts an incoming HTTP *POST* request that will populate the database with random
   catalog data. After finishing, it will return a status page.
+- `/cart` &ndash; which accepts an incoming HTTP *GET* request and will display the items held in the user's shopping
+  cart based on the session.
+
+### API Routes
+
+- `/cart` &ndash; accepts many different HTTP requests that are determined by what action the user would like to
+  complete. These actions could be adding an item to the shopping cart, removing an item, removing all items, or
+  checking out.
 
 ## Database
 
