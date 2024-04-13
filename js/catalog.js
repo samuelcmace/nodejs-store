@@ -20,13 +20,20 @@
         let item_id = String(add_to_cart_buttons[i].id).replace("addToCart", "");
         add_to_cart_buttons[i].addEventListener("click", () => {
 
-            let add_to_cart_request = new XMLHttpRequest();
-            add_to_cart_request.addEventListener("load", () => {
+            fetch("/api/cart", {
+                method: "POST",
+                headers: {
+                    "Action": "Add-To-Cart",
+                    "Item-ID": parseInt(item_id)
+                }
+            }).then(async (response) => {
+                let result = await response.json();
+                console.log(result);
                 alert("Item ID " + item_id + " added to your cart!");
+            }).catch(error => {
+                alert(error);
             });
-            add_to_cart_request.open("POST", "/api/cart");
-            add_to_cart_request.setRequestHeader("Item-ID", item_id);
-            add_to_cart_request.send();
+
         });
     }
 

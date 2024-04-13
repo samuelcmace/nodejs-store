@@ -9,7 +9,7 @@ class CartService {
                 const db_connection = db_instance.connection;
 
                 let items = [];
-                let cursor = db_connection.db("catalog").collection("item").find({cart_items: {$in: "$_id"}});
+                let cursor = db_connection.db("catalog").collection("item").find({"_id": {$in: cart_items}});
 
                 for await(const element of cursor) {
                     items.push(element);
@@ -31,24 +31,44 @@ class CartService {
             try {
                 const db_instance = await DBConnectionPool.getInstance();
                 const db_connection = db_instance.connection;
+                let item_to_add_int = parseInt(item_to_add);
 
                 let items = [];
-                let cursor = db_connection.db("catalog").collection("item").find({item_to_add: "$_id"});
+                let cursor = db_connection.db("catalog").collection("item").find({"_id": item_to_add_int});
 
                 for await(const element of cursor) {
                     items.push(element);
                 }
 
                 if(items.length === 0) {
-                    reject("Error: No such item found!");
-                } else if(items.first.on_hand <= 0) {
+                    reject("Error: No such item found");
+                } else if(items[0].on_hand <= 0) {
                     reject("Error: Cannot add to cart! Item not in stock!");
                 } else {
-                    shopping_cart.append(item_to_add);
+                    shopping_cart.push(item_to_add_int);
                     resolve("Item " + item_to_add + " successfully added to cart!");
                 }
             } catch (error) {
                 reject(error);
+            }
+        });
+    }
+
+    static checkout = function(shopping_cart) {
+        return new Promise(async (resolve, reject) => {
+            let db_instance, db_connection, session;
+            try {
+                db_instance = await DBConnectionPool.getInstance();
+                db_connection = db_instance.connection;
+                session = db_connection.session();
+
+                // Stage 1: Check On-Hand Quantities Before Checking Out
+                let items = [];
+                db_connection.db("catalog").collection("item").find({cart_items: {$in: shopping_cart}});
+
+            }
+            catch(exception) {
+                reject(exception);
             }
         });
     }
