@@ -21,7 +21,7 @@
         });
 
         const result = await response.json();
-        alert("Message: " + result.message);
+        alert("Cart Contents: " + JSON.stringify(result.message));
     });
 
 })();
