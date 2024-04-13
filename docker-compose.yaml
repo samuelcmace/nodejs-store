@@ -1,6 +1,4 @@
 # Simple Docker Compose File to Run the Storefront Application
-version: "0.0.0-dev"
-
 services:
 
   # The container representing the Main Node.js Application
