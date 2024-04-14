@@ -35,11 +35,11 @@ function setup_debug_routes(app) {
     app.put("/api/debug/cart", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         try {
-            if (!req.session.cart) req.session.cart = new Map();
+            if (!req.session.cart) req.session.cart = {};
             let item_id = req.get("Item-ID");
             let quantity = req.get("Quantity");
 
-            CartService.update_cart(req.session.cart, item_id, quantity).then(response => {
+            CartService.update_cart_dangerous(req.session.cart, item_id, quantity).then(response => {
                 res.end(JSON.stringify({outcome: "pass", message: response}));
             }).catch(error => {
                 res.end(JSON.stringify({outcome: "fail", message: error}));

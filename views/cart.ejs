@@ -15,18 +15,18 @@
             <img class="catalog-item-image" src="<%= cart[i].image %>" alt="Catalog Item Image">
             <p class="catalog-item-in-cart">In Cart: <%= cart[i].in_cart %></p>
             <div class="in-cart-quantity-buttons">
-                <button id="increaseQuantity">+</button>
-                <button id="decreaseQuantity">-</button>
+                <button id="increaseQuantity<%= cart[i]._id %>" class="in-cart-increase-quantity-button">+</button>
+                <button id="decreaseQuantity<%= cart[i]._id %>" class="in-cart-decrease-quantity-button">-</button>
             </div>
             <p class="catalog-item-name"><strong><%= cart[i].name %></strong></p>
             <p class="catalog-item-price"><%= cart[i].price %></p>
             <p class="catalog-item-description"><%= cart[i].description %></p>
-            <button id="removeItem">Remove Item</button>
+            <button id="removeItem<%= cart[i]._id %>" class="in-cart-remove-item-button">Remove Item</button>
         </div>
     <% } %>
 </div>
 <a href="/">Return to Homepage</a>
 <script src="/js/currency_formatter.js"></script>
-<script src="/js/catalog.js"></script>
+<script src="/js/cart.js"></script>
 </body>
 </html>

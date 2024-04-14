@@ -20,7 +20,13 @@ function attach_api_route_to_button_set(button_set, id_prefix, action) {
 
 (() => {
 
-    let add_to_cart_buttons = document.getElementsByClassName("catalog-item-add-to-cart");
-    attach_api_route_to_button_set(add_to_cart_buttons, "addToCart", "Add-To-Cart");
+    let increase_quantity_buttons = document.getElementsByClassName("in-cart-increase-quantity-button");
+    attach_api_route_to_button_set(increase_quantity_buttons, "increaseQuantity", "Increase-Quantity");
+
+    let decrease_quantity_buttons = document.getElementsByClassName("in-cart-decrease-quantity-button");
+    attach_api_route_to_button_set(decrease_quantity_buttons, "decreaseQuantity", "Decrease-Quantity");
+
+    let remove_item_buttons = document.getElementsByClassName("in-cart-remove-item-button");
+    attach_api_route_to_button_set(remove_item_buttons, "removeItem", "Remove-From-Cart");
 
 })();

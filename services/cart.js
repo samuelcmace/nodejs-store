@@ -46,9 +46,8 @@ class CartService {
             try {
                 const db_instance = await DBConnectionPool.getInstance();
                 const db_connection = db_instance.connection;
-                let item_to_add_int = parseInt(item_to_add);
 
-                let database_item = await db_connection.db("catalog").collection("item").findOne({"_id": item_to_add_int});
+                let database_item = await db_connection.db("catalog").collection("item").findOne({"_id": parseInt(item_to_add)});
 
                 if (!database_item) {
                     reject("Error: No such item found");
@@ -57,7 +56,7 @@ class CartService {
                 } else if (shopping_cart[database_item._id] && shopping_cart[database_item._id].in_cart + 1 > database_item.on_hand) {
                     reject("Error: Cannot add to cart! You took all of the items available!");
                 } else {
-                    if (database_item._id in Object.keys(shopping_cart)) {
+                    if (Object.keys(shopping_cart).includes(String(database_item._id))) {
                         shopping_cart[database_item._id].in_cart += 1;
                     } else {
                         shopping_cart[database_item._id] = {};
@@ -67,6 +66,33 @@ class CartService {
                 }
             } catch (error) {
                 reject(error);
+            }
+        });
+    }
+
+    static remove_item_from_cart = function (shopping_cart, item_to_remove) {
+        return new Promise((resolve, reject) => {
+            if (Object.keys(shopping_cart).includes(item_to_remove)) {
+                delete shopping_cart[item_to_remove];
+                resolve("Item removed from shopping cart!");
+            } else {
+                reject("Item not found in shopping cart!");
+            }
+        });
+    }
+
+    static decrement_cart = function(shopping_cart, item_to_decrement) {
+        return new Promise((resolve, reject) => {
+            if (Object.keys(shopping_cart).includes(item_to_decrement)) {
+                if(shopping_cart[item_to_decrement].in_cart > 1) {
+                    shopping_cart[item_to_decrement].in_cart -= 1;
+                    resolve("Item decremented inside shopping cart!");
+                } else {
+                    delete shopping_cart[item_to_decrement];
+                    resolve("Item removed from shopping cart!");
+                }
+            } else {
+                reject("Item not found in shopping cart!");
             }
         });
     }
@@ -102,13 +128,18 @@ class CartService {
      * @param quantity The new quantity for the item.
      * @returns {Promise<unknown>} A Promise to update the item quantity if it exists in the shopping cart.
      */
-    static update_cart = function (shopping_cart, item_id, quantity) {
-        return new Promise((resolve,reject) => {
+    static update_cart_dangerous = function (shopping_cart, item_id, quantity) {
+        return new Promise((resolve, reject) => {
             try {
-                if (!(item_id in Object.keys(shopping_cart))) shopping_cart[item_id] = {};
-                shopping_cart[item_id].in_cart = parseInt(quantity);
-                resolve("Item ID " + item_id + " quantity set to " + quantity + ".");
-            } catch(exception) {
+                if (!Object.keys(shopping_cart).includes(item_id)) shopping_cart[item_id] = {};
+                if (isNaN(quantity)) {
+                    delete shopping_cart[item_id];
+                    resolve("Item ID " + item_id + " deleted.");
+                } else {
+                    shopping_cart[item_id].in_cart = parseInt(quantity);
+                    resolve("Item ID " + item_id + " quantity set to " + quantity + ".");
+                }
+            } catch (exception) {
                 reject(exception);
             }
         });

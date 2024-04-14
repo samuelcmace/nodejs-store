@@ -32,7 +32,7 @@
 
         let response = await fetch("/api/debug/cart", {
             method: "PUT", headers: {
-                "Item-ID": parseInt(item_id), "Quantity": parseInt(quantity)
+                "Item-ID": item_id, "Quantity": quantity
             }
         });
 
