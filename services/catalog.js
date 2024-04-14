@@ -17,7 +17,7 @@ class CatalogService {
                     let price = faker.commerce.price({ min: 100, max: 200 });
                     let description = faker.lorem.paragraphs(3);
                     let image = faker.image.urlLoremFlickr({ category: 'food' });
-                    let on_hand = Math.floor(Math.random() * 10);
+                    let on_hand = Math.floor(Math.random() * 10) + 1;
                     await db_connection.db("catalog").collection("item").updateOne(
                         {"_id": i},
                         {$set: {
