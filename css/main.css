@@ -15,21 +15,21 @@ body {
     font-size: large;
 }
 
-.catalog-container, .cart-container {
+.catalog-container {
     display: grid;
     column-gap: 50px;
     row-gap: 50px;
     grid-template-columns: repeat(auto-fit, minmax(10em, 20em));
 }
 
-.catalog-item, .cart-item {
+.catalog-item {
     display: inline-block;
 }
 
-.catalog-item-image, .cart-item-image {
+.catalog-item-image {
     max-width: 10em;
 }
 
-.catalog-item-name, .catalog-item-name {
+.catalog-item-name {
     font-weight: bold;
 }

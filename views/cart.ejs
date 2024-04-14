@@ -8,7 +8,7 @@
 </head>
 <body>
 <h1>Cart</h1>
-<div class="cart-container">
+<div class="catalog-container">
     <% for(let i = 0; i < cart.length; i++) { %>
         <div class="catalog-item" id="catalogItem<%= cart[i]._id %>">
             <p class="catalog-item-id">Item ID: <span><%= cart[i]._id %></span></p>
@@ -25,6 +25,7 @@
         </div>
     <% } %>
 </div>
+<button id="checkout">Checkout</button>
 <a href="/">Return to Homepage</a>
 <script src="/js/currency_formatter.js"></script>
 <script src="/js/cart.js"></script>
