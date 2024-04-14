@@ -81,10 +81,10 @@ class CartService {
         });
     }
 
-    static decrement_cart = function(shopping_cart, item_to_decrement) {
+    static decrement_cart = function (shopping_cart, item_to_decrement) {
         return new Promise((resolve, reject) => {
             if (Object.keys(shopping_cart).includes(item_to_decrement)) {
-                if(shopping_cart[item_to_decrement].in_cart > 1) {
+                if (shopping_cart[item_to_decrement].in_cart > 1) {
                     shopping_cart[item_to_decrement].in_cart -= 1;
                     resolve("Item decremented inside shopping cart!");
                 } else {
@@ -108,14 +108,43 @@ class CartService {
             try {
                 db_instance = await DBConnectionPool.getInstance();
                 db_connection = db_instance.connection;
-                session = db_connection.session();
+                session = db_connection.startSession();
+                await session.startTransaction();
 
-                // Stage 1: Check On-Hand Quantities Before Checking Out
+                let items_removed_from_order = false;
+
                 let items = [];
-                db_connection.db("catalog").collection("item").find({cart_items: {$in: shopping_cart}});
+                let cursor = db_connection.db("catalog").collection("item").find({$where: {"_id": {$in: Object.keys(shopping_cart).map(Number)}}});
+                for await (const element of cursor) {
+                    items.push(element);
+                }
 
+                for (let element in items) {
+                    let new_on_hand = element.on_hand - shopping_cart[element._id].in_cart;
+                    if (new_on_hand >= 0) {
+                        await db_connection.db("catalog").collection("item").findOneAndUpdate({"_id": parseInt(element._id)}, {$inc: {on_hand: -element.in_cart}}, {session});
+                        delete shopping_cart[element._id];
+                        items_removed_from_order = true;
+                    } else {
+                        await db_connection.db("catalog").collection("item").findOneAndUpdate({"_id": parseInt(element._id)}, {$set: {on_hand: 0}}, {session});
+                        shopping_cart[element._id].in_cart = Math.abs(new_on_hand);
+                    }
+
+                    if (items_removed_from_order) {
+                        resolve("Unfortunately, due to lack of inventory levels, some items have been removed from your order. I apologize for any inconvenience this may have caused!");
+                    } else {
+                        resolve("Checkout succeeded!");
+                    }
+                    await session.commitTransaction();
+                }
+
+                reject("Error: No such items found!");
+                await session.abortTransaction();
             } catch (exception) {
                 reject(exception);
+                await session.abortTransaction();
+            } finally {
+                await session.endSession();
             }
         });
     }
