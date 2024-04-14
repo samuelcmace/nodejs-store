@@ -4,6 +4,10 @@ body {
     padding: 1em 5em;
 }
 
+#checkout {
+    margin: 1em 0;
+}
+
 .navigation-form {
     display: inline-block;
 }
