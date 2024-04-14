@@ -23,7 +23,6 @@ function setup_api_routes(app) {
         let action = req.get("Action");
         if (action === "Checkout") {
             CartService.checkout(req.session.cart).then(result => {
-                req.session.cart = {};
                 res.end(JSON.stringify({outcome: "pass", message: result}));
             }).catch(error => {
                 res.end(JSON.stringify({outcome: "fail", message: error}));

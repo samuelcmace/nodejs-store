@@ -113,33 +113,33 @@ class CartService {
 
                 let items_removed_from_order = false;
 
-                let items = [];
-                let cursor = db_connection.db("catalog").collection("item").find({$where: {"_id": {$in: Object.keys(shopping_cart).map(Number)}}});
-                for await (const element of cursor) {
-                    items.push(element);
-                }
+                let cursor = db_connection.db("catalog").collection("item").find({"_id": {$in: Object.keys(shopping_cart).map(Number)}});
+                if (await cursor.length !== 0) {
+                    for await (const element of cursor) {
+                        let requested_amount = shopping_cart[element._id].in_cart;
+                        let available_amount = element.on_hand;
+                        let new_on_hand;
 
-                for (let element in items) {
-                    let new_on_hand = element.on_hand - shopping_cart[element._id].in_cart;
-                    if (new_on_hand >= 0) {
-                        await db_connection.db("catalog").collection("item").findOneAndUpdate({"_id": parseInt(element._id)}, {$inc: {on_hand: -element.in_cart}}, {session});
-                        delete shopping_cart[element._id];
-                        items_removed_from_order = true;
-                    } else {
-                        await db_connection.db("catalog").collection("item").findOneAndUpdate({"_id": parseInt(element._id)}, {$set: {on_hand: 0}}, {session});
-                        shopping_cart[element._id].in_cart = Math.abs(new_on_hand);
+                        if (available_amount - requested_amount >= 0) {
+                            new_on_hand = available_amount - requested_amount;
+                            delete shopping_cart[element._id];
+                        } else {
+                            new_on_hand = 0;
+                            shopping_cart[element._id].in_cart = requested_amount - available_amount;
+                            items_removed_from_order = true;
+                        }
+                        await db_connection.db("catalog").collection("item").updateOne({"_id": element._id}, {$set: {on_hand: new_on_hand}}, {session});
                     }
-
                     if (items_removed_from_order) {
                         resolve("Unfortunately, due to lack of inventory levels, some items have been removed from your order. I apologize for any inconvenience this may have caused!");
                     } else {
                         resolve("Checkout succeeded!");
                     }
                     await session.commitTransaction();
+                } else {
+                    reject("Error: No such items found!");
+                    await session.abortTransaction();
                 }
-
-                reject("Error: No such items found!");
-                await session.abortTransaction();
             } catch (exception) {
                 reject(exception);
                 await session.abortTransaction();
@@ -155,7 +155,7 @@ class CartService {
      * @param shopping_cart A JSON object corresponding to the shopping cart.
      * @param item_id The ID corresponding to the item to be updated.
      * @param quantity The new quantity for the item.
-     * @returns {Promise<unknown>} A Promise to update the item quantity if it exists in the shopping cart.
+     * @returns {Promise<unknown>} A Promise to update the item quantity in the shopping cart.
      */
     static update_cart_dangerous = function (shopping_cart, item_id, quantity) {
         return new Promise((resolve, reject) => {
