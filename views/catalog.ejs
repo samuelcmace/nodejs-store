@@ -13,13 +13,16 @@
             <div class="catalog-item" id="catalogItem<%= catalog[i]._id %>">
                 <p class="catalog-item-id">Item ID: <span><%= catalog[i]._id %></span></p>
                 <img class="catalog-item-image" src="<%= catalog[i].image %>" alt="Catalog Item Image">
+                <p class="catalog-item-on-hand">On Hand: <%= catalog[i].on_hand %></p>
                 <p class="catalog-item-name"><%= catalog[i].name %></p>
                 <p class="catalog-item-price"><%= catalog[i].price %></p>
                 <p class="catalog-item-description"><%= catalog[i].description %></p>
+                <button class="catalog-item-add-to-cart" id="addToCart<%= catalog[i]._id %>">Add to Cart</button>
             </div>
         <% } %>
     </div>
     <a href="/">Return to Homepage</a>
+    <script src="/js/currency_formatter.js"></script>
     <script src="/js/catalog.js"></script>
 </body>
 </html>

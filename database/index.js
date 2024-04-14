@@ -2,44 +2,77 @@ const process = require("process");
 
 const {MongoClient} = require("mongodb");
 
-// Create a class to represent a connection to the MongoDB database.
+/**
+ * Class encapsulating a connection to the MongoDB Database.
+ */
 class DatabaseConnection {
-    constructor() {
-        // If the application is being hosted inside Docker, the process.env.MONGO_CONNECTION_STRING will populate for
-        // us the connection string used to connect to the database. On the other hand, if we are running the web server
-        // directly on bare metal, we will set the connection string to a predefined value.
 
-        this.mongo_connection_string = process.env.MONGO_CONNECTION_STRING;
-        if(this.mongo_connection_string === undefined) {
-            this.mongo_connection_string = "mongodb://localhost:27017/";
+    /**
+     * Initializes a new instance of DatabaseConnection.
+     */
+    constructor() {
+
+        /**
+         * Environment variable representing the MongoDB Connection String. If left undefined, the server will establish
+         * a direct connection to localhost.
+         * @type {string} A String representing the connection URL.
+         */
+        if (process.env.MONGO_CONNECTION_STRING === undefined) {
+            this.mongo_connection_string = "mongodb://localhost:27017/?directConnection=true";
+        } else {
+            this.mongo_connection_string = process.env.MONGO_CONNECTION_STRING;
+        }
+        this.connection = new MongoClient(this.mongo_connection_string);
+
+        /**
+         * Environment variable representing the MongoDB Connection Timeout.
+         * @type {number} An Integer representing the number of milliseconds the MongoDB client should attempt to
+         *                connect before timing out.
+         */
+        if (process.env.MONGO_CONNECTION_TIMEOUT === undefined) {
+            this.mongo_connection_timeout = 15000;
+        } else {
+            this.mongo_connection_timeout = parseInt(process.env.MONGO_CONNECTION_TIMEOUT);
         }
 
-        this.connection = new MongoClient(this.mongo_connection_string);
     }
 
-    connect = async function() {
+    /**
+     * Promise-based function to establish a connection to the database.
+     * @returns {Promise<unknown>} A Promise representing the outcome of the connection request.
+     */
+    connect = async function () {
         console.log(`Connecting to MongoDB at ${this.mongo_connection_string}`);
-        await this.connection.connect();
-        console.log("Successfully Connected to MongoDB!");
+        await this.connection.connect({serverSelectionTimeoutMS: this.mongo_connection_timeout});
     }
+
 }
 
-// Create a class using the Singleton design pattern that forces the programmer to access a single instance of the database.
+/**
+ * Singleton database connection pool instance.
+ */
 class DBConnectionPool {
+
+    /**
+     * Instantiates a new instance of DBConnectionPool
+     */
     constructor() {
         throw new Error("Error: This is a Singleton object! Use DatabaseConnection.getInstance() instead.");
     }
-    static getInstance = async function() {
-        if(!DBConnectionPool.instance) {
+
+    /**
+     * Fetches the singleton instance of DatabaseConnection.
+     * @returns {Promise<DatabaseConnection>} A Promise that returns the database connection when it is up and ready.
+     */
+    static getInstance = async function () {
+        // If the singleton instance has not yet been instantiated, instantiate it.
+        if (!DBConnectionPool.instance) {
             DBConnectionPool.instance = new DatabaseConnection();
-            try {
-                await DBConnectionPool.instance.connect();
-            } catch (exception) {
-                console.error(exception);
-            }
         }
+        await DBConnectionPool.instance.connect();
         return DBConnectionPool.instance;
     }
+
 }
 
 module.exports = {DBConnectionPool};

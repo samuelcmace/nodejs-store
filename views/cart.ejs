@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <title>Storefront &ndash; Catalog</title>
+</head>
+<body>
+<h1>Cart</h1>
+<div class="catalog-container">
+    <% for(let i = 0; i < cart.length; i++) { %>
+        <div class="catalog-item" id="catalogItem<%= cart[i]._id %>">
+            <p class="catalog-item-id">Item ID: <span><%= cart[i]._id %></span></p>
+            <img class="catalog-item-image" src="<%= cart[i].image %>" alt="Catalog Item Image">
+            <p class="catalog-item-in-cart">In Cart: <%= cart[i].in_cart %></p>
+            <div class="in-cart-quantity-buttons">
+                <button id="increaseQuantity<%= cart[i]._id %>" class="in-cart-increase-quantity-button">+</button>
+                <button id="decreaseQuantity<%= cart[i]._id %>" class="in-cart-decrease-quantity-button">-</button>
+            </div>
+            <p class="catalog-item-name"><strong><%= cart[i].name %></strong></p>
+            <p class="catalog-item-price"><%= cart[i].price %></p>
+            <p class="catalog-item-description"><%= cart[i].description %></p>
+            <button id="removeItem<%= cart[i]._id %>" class="in-cart-remove-item-button">Remove Item</button>
+        </div>
+    <% } %>
+</div>
+<button id="checkout" class="navigation-button">Checkout</button>
+<br>
+<a href="/">Return to Homepage</a>
+<script src="/js/currency_formatter.js"></script>
+<script src="/js/cart.js"></script>
+</body>
+</html>

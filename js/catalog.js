@@ -1,17 +1,26 @@
+function attach_api_route_to_button_set(button_set, id_prefix, action) {
+    for (let i = 0; i < button_set.length; i++) {
+        let item_id = String(button_set[i].id).replace(id_prefix, "");
+        button_set[i].addEventListener("click", () => {
+            fetch("/api/cart", {
+                method: "POST", headers: {
+                    "Action": action, "Item-ID": item_id
+                }
+            }).then(async (response) => {
+                let result = await response.json();
+                alert(result.outcome.toUpperCase() + ": " + JSON.stringify(result.message));
+                location.reload();
+            }).catch(async (error) => {
+                let result = await error.json();
+                alert(result.outcome.toUpperCase() + ": " + JSON.stringify(result.message));
+            });
+        });
+    }
+}
+
 (() => {
 
-    // Create a currency formatter for the objects on the screen.
-    const currency_formatter = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD"
-    });
-
-    // For each element fetched from the database, update the formatting as the en-US currency.
-    let elements = document.getElementsByClassName("catalog-item-price");
-
-    for(let i = 0; i < elements.length; i++) {
-        let old_content = elements[i].textContent;
-        elements[i].textContent = currency_formatter.format(parseInt(old_content));
-    }
+    let add_to_cart_buttons = document.getElementsByClassName("catalog-item-add-to-cart");
+    attach_api_route_to_button_set(add_to_cart_buttons, "addToCart", "Add-To-Cart");
 
 })();

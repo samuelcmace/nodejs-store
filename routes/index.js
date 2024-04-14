@@ -1,36 +1,5 @@
-const {Services} = require("../services");
+const {setup_debug_routes} = require("./debug");
+const {setup_web_routes} = require("./web.js");
+const {setup_api_routes} = require("./api.js");
 
-function setup_routes(app) {
-
-    app.get("/", (req, res) => {
-        res.render("index");
-    });
-
-    app.get("/catalog", (req, res) => {
-        Services.get_catalog_items().then(items => {
-            res.render("catalog", {catalog: items});
-        }).catch(error => {
-            res.render("error", {error: error});
-        });
-    });
-
-    app.post("/generate-data", (req, res) => {
-        Services.populate_catalog_items().then(result => {
-            res.render("generate-data");
-        }).catch(error => {
-            res.render("error", {error: error});
-        });
-    });
-
-}
-
-function setup_api_routes(app) {
-
-    app.get("/api/healthcheck", (req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ status: "healthy" }));
-    });
-
-}
-
-module.exports = {setup_routes, setup_api_routes};
+module.exports = {setup_web_routes, setup_api_routes, setup_debug_routes};
