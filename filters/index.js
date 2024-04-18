@@ -4,7 +4,7 @@ class AuthFilter {
         if(request.session.username === undefined) {
             response.redirect("/auth");
         } else {
-            return next(request, response);
+            next();
         }
     }
 

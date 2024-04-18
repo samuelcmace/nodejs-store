@@ -4,7 +4,7 @@
 
     logout_button.addEventListener("click", async () => {
         let response = await fetch("/api/auth", {
-            method: "PUT",
+            method: "GET",
             headers: {
                 "Action": "Logout"
             }
@@ -12,7 +12,9 @@
 
         const result = await response.json();
         if (result.outcome === "PASS") {
-            alert("Session Cleared Successfully!");
+            alert("You have been successfully logged out!");
+        } else {
+            alert(`${result.outcome.toUpperCase()}: ${result.message}`);
         }
     });
 

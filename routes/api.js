@@ -56,7 +56,7 @@ function setup_api_routes(app) {
         let action = req.get("Action");
         let username = req.get("Username");
         if(action === "Login") {
-            AuthService.login_account(req.session, username).then(result => {
+             AuthService.login_account(req.session, username).then(result => {
                 res.end(JSON.stringify({outcome: "pass", message: result}));
             }).catch(error => {
                 res.end(JSON.stringify({outcome: "fail", message: error}));

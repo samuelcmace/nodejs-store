@@ -8,7 +8,7 @@
         });
 
         const result = await response.json();
-        if (result.outcome === "PASS") {
+        if (result.outcome.toUpperCase() === "PASS") {
             alert("Session Cleared Successfully!");
         }
     });

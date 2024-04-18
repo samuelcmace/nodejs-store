@@ -1,5 +1,8 @@
 const {DBConnectionPool} = require("../database");
 
+/**
+ * Service to manage authentication-related inquiries.
+ */
 class AuthService {
 
     /**
@@ -32,10 +35,9 @@ class AuthService {
     }
 
     /**
-     *
-     * @param session
-     * @param account_name
-     * @returns {Promise<unknown>}
+     * Helper function to log the user out of the current session.
+     * @param session The current session object.
+     * @returns {Promise<unknown>} A Promise to log the user out of the current session out.
      */
     static logout_account = function (session) {
         return new Promise(async (resolve, reject) => {
@@ -49,10 +51,10 @@ class AuthService {
     }
 
     /**
-     *
-     * @param session
-     * @param account_name
-     * @returns {Promise<unknown>}
+     * Helper function to log the user into the specified username.
+     * @param session The session object in question.
+     * @param account_name The account name by which the user should be logged in.
+     * @returns {Promise<unknown>} A Promise to log the user into the current session.
      */
     static login_account = function (session, account_name) {
         return new Promise(async (resolve, reject) => {
@@ -74,7 +76,7 @@ class AuthService {
         const db_instance = await DBConnectionPool.getInstance();
         const db_connection = db_instance.connection;
         const account = await db_connection.db("catalog").collection("account").findOne({"username": account_name});
-        return account !== undefined;
+        return account !== null;
     }
 
     /**

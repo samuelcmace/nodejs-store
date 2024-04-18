@@ -106,12 +106,12 @@ class CartService {
         return new Promise(async (resolve, reject) => {
             let username = session.username;
             let shopping_cart = session.cart;
-            let db_instance, db_connection, session;
+            let db_instance, db_connection, db_session;
             try {
                 db_instance = await DBConnectionPool.getInstance();
                 db_connection = db_instance.connection;
-                session = db_connection.startSession();
-                await session.startTransaction();
+                db_session = db_connection.startSession();
+                await db_session.startTransaction();
 
                 let items_removed_from_order = false;
 
@@ -130,23 +130,23 @@ class CartService {
                             shopping_cart[element._id].in_cart = requested_amount - available_amount;
                             items_removed_from_order = true;
                         }
-                        await db_connection.db("catalog").collection("item").updateOne({"_id": element._id}, {$set: {on_hand: new_on_hand}}, {session});
+                        await db_connection.db("catalog").collection("item").updateOne({"_id": element._id}, {$set: {on_hand: new_on_hand}}, {db_session});
                     }
                     if (items_removed_from_order) {
                         resolve("Unfortunately, due to lack of inventory levels, some items have been removed from your order. I apologize for any inconvenience this may have caused!");
                     } else {
                         resolve("Checkout succeeded!");
                     }
-                    await session.commitTransaction();
+                    await db_session.commitTransaction();
                 } else {
                     reject("Error: No such items found!");
-                    await session.abortTransaction();
+                    await db_session.abortTransaction();
                 }
             } catch (exception) {
                 reject(exception);
-                await session.abortTransaction();
+                await db_session.abortTransaction();
             } finally {
-                await session.endSession();
+                await db_session.endSession();
             }
         });
     }

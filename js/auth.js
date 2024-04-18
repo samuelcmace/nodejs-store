@@ -15,7 +15,9 @@
 
         const result = await response.json();
         if (result.outcome.toUpperCase() === "PASS") {
-            alert("Session Cleared Successfully!");
+            alert("Account Registered Successfully!");
+        } else {
+            alert(`${result.outcome.toUpperCase()}: ${result.message}`);
         }
     });
 
@@ -25,7 +27,7 @@
         let username = prompt("Please enter the username with which you would like to login:");
 
         let response = await fetch("/api/auth", {
-            method: "POST",
+            method: "GET",
             headers: {
                 "Action": "Login",
                 "Username": username
