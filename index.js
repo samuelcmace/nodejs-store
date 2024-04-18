@@ -2,7 +2,6 @@ const express = require("express");
 const session = require("express-session");
 
 const routes = require("./routes");
-const {setup_debug_routes} = require("./routes/debug");
 
 const web_hostname = "0.0.0.0";
 const web_port = 3000;

@@ -99,11 +99,13 @@ class CartService {
 
     /**
      * Function to check out the user's shopping cart.
-     * @param shopping_cart A HashMap containing the ID of the item and it's corresponding in_cart amount.
+     * @param session The session object containing both the shopping cart and the corresponding username necessary for checkout.
      * @returns {Promise<unknown>} A Promise to check out the user's shopping cart.
      */
-    static checkout = function (shopping_cart) {
+    static checkout = function (session) {
         return new Promise(async (resolve, reject) => {
+            let username = session.username;
+            let shopping_cart = session.cart;
             let db_instance, db_connection, session;
             try {
                 db_instance = await DBConnectionPool.getInstance();

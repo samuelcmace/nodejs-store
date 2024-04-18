@@ -1,4 +1,4 @@
-const {CartService} = require("../services");
+const {CartService, AuthService} = require("../services");
 
 /**
  * Function to set up the API routes necessary to run the storefront application.
@@ -22,7 +22,7 @@ function setup_api_routes(app) {
         if (!req.session.cart) req.session.cart = {};
         let action = req.get("Action");
         if (action === "Checkout") {
-            CartService.checkout(req.session.cart).then(result => {
+            CartService.checkout(req.session).then(result => {
                 res.end(JSON.stringify({outcome: "pass", message: result}));
             }).catch(error => {
                 res.end(JSON.stringify({outcome: "fail", message: error}));
@@ -44,6 +44,38 @@ function setup_api_routes(app) {
         } else if(action === "Decrease-Quantity") {
             let item_to_decrease_quantity = req.get("Item-ID");
             CartService.decrement_cart(req.session.cart, item_to_decrease_quantity).then(result => {
+                res.end(JSON.stringify({outcome: "pass", message: result}));
+            }).catch(error => {
+                res.end(JSON.stringify({outcome: "fail", message: error}));
+            });
+        }
+    });
+
+    app.get("/api/auth", (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        let action = req.get("Action");
+        let username = req.get("Username");
+        if(action === "Login") {
+            AuthService.login_account(req.session, username).then(result => {
+                res.end(JSON.stringify({outcome: "pass", message: result}));
+            }).catch(error => {
+                res.end(JSON.stringify({outcome: "fail", message: error}));
+            });
+        } else if(action === "Logout") {
+            AuthService.logout_account(req.session).then(result => {
+                res.end(JSON.stringify({outcome: "pass", message: result}));
+            }).catch(error => {
+                res.end(JSON.stringify({outcome: "fail", message: error}));
+            });
+        }
+    });
+
+    app.post("/api/auth", (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        let action = req.get("Action");
+        let username = req.get("Username");
+        if(action === "Register") {
+            AuthService.register_account(req.session, username).then(result => {
                 res.end(JSON.stringify({outcome: "pass", message: result}));
             }).catch(error => {
                 res.end(JSON.stringify({outcome: "fail", message: error}));

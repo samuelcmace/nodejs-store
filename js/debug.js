@@ -8,7 +8,7 @@
         });
 
         const result = await response.json();
-        if (result.outcome === "pass") {
+        if (result.outcome === "PASS") {
             alert("Session Cleared Successfully!");
         }
     });
