@@ -1,0 +1,27 @@
+name: Build Docker Image and Push to Docker Hub
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to the Docker CLI
+        run: docker login -u samuelcmace -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Create Tag for Docker
+        id: create_tag
+        run: echo $(date +%s) >> $GITHUB_OUTPUT
+
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs[0] }}
+
+      - name: Push the Image to Docker Hub
+        run: docker push docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs[0] }}
