@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,7 +19,10 @@ jobs:
 
       - name: Create Tag for Docker
         id: create_tag
-        run: echo "tag=$(date +%s)" >> $GITHUB_OUTPUT
+        run: |
+          current_date=$(date +%s)
+          current_branch=${{ env.BRANCH_NAME }}
+          echo "tag=${current_branch//\//_}-${current_date}" >> $GITHUB_OUTPUT
 
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs.tag }}
