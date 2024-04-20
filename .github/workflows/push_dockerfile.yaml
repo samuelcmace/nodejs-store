@@ -24,4 +24,4 @@ jobs:
         run: docker build . --file Dockerfile --tag docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs.tag }}
 
       - name: Push the Image to Docker Hub
-        run: docker push docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs[0] }}
+        run: docker push docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs.tag }}
