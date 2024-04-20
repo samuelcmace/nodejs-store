@@ -18,10 +18,10 @@ jobs:
 
       - name: Create Tag for Docker
         id: create_tag
-        run: echo $(date +%s) >> $GITHUB_OUTPUT
+        run: echo "tag=$(date +%s)" >> $GITHUB_OUTPUT
 
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs[0] }}
+        run: docker build . --file Dockerfile --tag docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs.tag }}
 
       - name: Push the Image to Docker Hub
         run: docker push docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs[0] }}
