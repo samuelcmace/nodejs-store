@@ -22,7 +22,7 @@ jobs:
         run: |
           current_date=$(date +%s)
           current_branch=${{ env.BRANCH_NAME }}
-          echo "tag=${current_branch//\//_}-${current_date}" >> $GITHUB_OUTPUT
+          echo "tag=${current_branch//\//-}-${current_date}" >> $GITHUB_OUTPUT
 
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs.tag }}
