@@ -1,5 +1,7 @@
 const {DBConnectionPool} = require("../database");
 
+const {AuthService} = require("./auth");
+
 /**
  * Service dealing with the user's shopping cart.
  */
@@ -104,10 +106,11 @@ class CartService {
      */
     static checkout = function (session) {
         return new Promise(async (resolve, reject) => {
-            let username = session.username;
+            let user_id;
             let shopping_cart = session.cart;
             let db_instance, db_connection, db_session;
             try {
+                user_id = await AuthService.fetch_account_primary_key(session.username);
                 db_instance = await DBConnectionPool.getInstance();
                 db_connection = db_instance.connection;
                 db_session = db_connection.startSession();
@@ -117,21 +120,30 @@ class CartService {
 
                 let cursor = db_connection.db("catalog").collection("item").find({"_id": {$in: Object.keys(shopping_cart).map(Number)}});
                 if (await cursor.length !== 0) {
+                    let order_items = [];
                     for await (const element of cursor) {
                         let requested_amount = shopping_cart[element._id].in_cart;
                         let available_amount = element.on_hand;
-                        let new_on_hand;
+                        let checked_out_amount, new_on_hand;
 
                         if (available_amount - requested_amount >= 0) {
                             new_on_hand = available_amount - requested_amount;
+                            checked_out_amount = requested_amount;
                             delete shopping_cart[element._id];
                         } else {
                             new_on_hand = 0;
+                            checked_out_amount = available_amount;
                             shopping_cart[element._id].in_cart = requested_amount - available_amount;
                             items_removed_from_order = true;
                         }
+                        order_items.push({_id: element._id, name: element.name, unit_price: element.price, quantity: checked_out_amount, total_price: element.price * checked_out_amount});
                         await db_connection.db("catalog").collection("item").updateOne({"_id": element._id}, {$set: {on_hand: new_on_hand}}, {db_session});
                     }
+                    let order_total = 0.00;
+                    for(let i = 0; i < order_items.length; i++) {
+                        order_total += order_items[i].total_price;
+                    }
+                    await db_connection.db("catalog").collection("order").insertOne({order_user: user_id, date: Date.now(), order_items: order_items, order_total: order_total});
                     if (items_removed_from_order) {
                         resolve("Unfortunately, due to lack of inventory levels, some items have been removed from your order. I apologize for any inconvenience this may have caused!");
                     } else {

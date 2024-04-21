@@ -15,12 +15,14 @@
     <form action="/cart" method="get" class="navigation-form">
         <input type="submit" value="View Shopping Cart">
     </form>
-    <form action="/generate-data" method="post" class="navigation-form">
-        <input type="submit" value="Generate Fake Data">
+    <form action="/orders" method="get" class="navigation-form">
+        <input type="submit" value="View Order History">
     </form>
+    <% if(!is_prod_environment) { %>
     <form action="/debug" method="get" class="navigation-form">
         <input type="submit" value="View Debug Portal">
     </form>
+    <% } %>
     <button id="logoutButton" class="navigation-button">Logout</button>
     <script src="/js/index.js"></script>
 </body>

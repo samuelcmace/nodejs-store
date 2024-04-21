@@ -12,11 +12,11 @@
         });
 
         const result = await response.json();
-        if (result.outcome.toUpperCase() === "PASS") {
+        if (result.outcome === "PASS") {
             alert("You have been successfully logged out!");
             location.assign("/auth");
         } else {
-            alert(`${result.outcome.toUpperCase()}: ${result.message}`);
+            alert(`${result.outcome}: ${result.message}`);
         }
     });
 

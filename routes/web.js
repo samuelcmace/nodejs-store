@@ -1,17 +1,18 @@
-const {CatalogService, CartService} = require("../services");
+const {CatalogService, CartService, OrderService} = require("../services");
 const {AuthFilter} = require("../filters");
 
 /**
  * Function to set up the web routes necessary to run the application.
  * @param app The instance of the Express.js application.
+ * @param is_prod_environment A flag indicating whether the environment is production.
  */
-function setup_web_routes(app) {
+function setup_web_routes(app, is_prod_environment) {
 
     /**
      * Web route for the main application.
      */
     app.get("/", AuthFilter.authentication_filter, (req, res) => {
-        res.render("index");
+        res.render("index", {is_prod_environment: is_prod_environment});
     });
 
     /**
@@ -42,15 +43,16 @@ function setup_web_routes(app) {
         }
     });
 
-    /**
-     * Web route to populate the database with random items/quantities.
-     */
-    app.post("/generate-data", (req, res) => {
-        CatalogService.populate_catalog_items().then(result => {
-            res.render("generate-data");
-        }).catch(error => {
-            res.render("error", {error: error});
-        });
+    app.get("/orders", AuthFilter.authentication_filter, (req, res) => {
+        if (!req.session.username) {
+            res.render("error", "Error: It looks like you're not signed in. Please navigate to the authentication page to login.");
+        } else {
+            OrderService.get_order_history(req.session.username).then(result => {
+                res.render("orders", {username: req.session.username, orders: result.message.orders});
+            }).catch(error => {
+                res.render("error", {error: error});
+            });
+        }
     });
 
     /**

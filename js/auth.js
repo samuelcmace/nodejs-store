@@ -14,11 +14,11 @@
         });
 
         const result = await response.json();
-        if (result.outcome.toUpperCase() === "PASS") {
+        if (result.outcome === "PASS") {
             alert("Account Registered Successfully!");
             location.assign("/");
         } else {
-            alert(`${result.outcome.toUpperCase()}: ${result.message}`);
+            alert(`${result.outcome}: ${result.message}`);
         }
     });
 
@@ -36,11 +36,11 @@
         });
 
         const result = await response.json();
-        if(result.outcome.toUpperCase() === "PASS") {
+        if(result.outcome === "PASS") {
             alert("You've been successfully logged in. You now may proceed to navigate about the application until your heart's content!");
             location.assign("/");
         } else {
-            alert(`${result.outcome.toUpperCase()}: ${result.message}`);
+            alert(`${result.outcome}: ${result.message}`);
         }
     });
 
