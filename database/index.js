@@ -68,8 +68,8 @@ class DBConnectionPool {
         // If the singleton instance has not yet been instantiated, instantiate it.
         if (!DBConnectionPool.instance) {
             DBConnectionPool.instance = new DatabaseConnection();
+            await DBConnectionPool.instance.connect();
         }
-        await DBConnectionPool.instance.connect();
         return DBConnectionPool.instance;
     }
 

@@ -7,6 +7,9 @@
     <title>Storefront &ndash; Catalog</title>
 </head>
 <body>
+    <a href="/">
+        <button class="navigation-button">Return to Homepage</button>
+    </a>
     <h1>Catalog</h1>
     <div class="catalog-container">
         <% for(let i = 0; i < catalog.length; i++) { %>
@@ -17,12 +20,14 @@
                 <p class="catalog-item-name"><%= catalog[i].name %></p>
                 <p class="catalog-item-price"><%= catalog[i].price %></p>
                 <p class="catalog-item-description"><%= catalog[i].description %></p>
-                <button class="catalog-item-add-to-cart" id="addToCart<%= catalog[i]._id %>">Add to Cart</button>
+                <button class="catalog-item-add-to-cart item-button" id="addToCart<%= catalog[i]._id %>">Add to Cart</button>
             </div>
         <% } %>
     </div>
-    <a href="/">Return to Homepage</a>
-    <script src="/js/currency_formatter.js"></script>
+    <a href="/">
+        <button class="navigation-button">Return to Homepage</button>
+    </a>
+    <script src="/js/formatters/currency_formatter.js"></script>
     <script src="/js/catalog.js"></script>
 </body>
 </html>

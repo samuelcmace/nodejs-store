@@ -11,6 +11,9 @@ services:
       database:
         condition: service_healthy
     environment:
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+      - IS_PRODUCTION=false
       - MONGO_CONNECTION_STRING=mongodb://database:27017,dbreplset01:27017,dbreplset02:27017/?replicaSet=rs0
 
   # One-off container used to tie together the main MongoDB instance with its corresponding replication sets (once all

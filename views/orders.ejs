@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <title>Storefront &ndash; Order History</title>
+</head>
+<body>
+    <a href="/">
+        <button class="navigation-button">Return to Homepage</button>
+    </a>
+    <h1>Order History for User <em><%= username %></em></h1>
+    <% for(let i = 0; i < orders.length; i++) { %>
+        <div class="order-container">
+            <div class="order-information">
+                <p><strong>Order ID:</strong> <%= orders[i]._id %></p>
+                <p><strong>Order Date:</strong> <span class="order-date"><%= orders[i].date %></span></p>
+            </div>
+            <table class="order-contents">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <% for(let j = 0; j < orders[i].order_items.length; j++) { %>
+                    <tr>
+                        <td><%= orders[i].order_items[j].name %></td>
+                        <td class="catalog-item-price"><%= orders[i].order_items[j].unit_price %></td>
+                        <td><%= orders[i].order_items[j].quantity %></td>
+                        <td class="catalog-item-price"><%= orders[i].order_items[j].total_price %></td>
+                    </tr>
+                <% } %>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="catalog-item-price"><%= orders[i].order_total %></td>
+                </tr>
+            </table>
+        </div>
+    <% } %>
+    <a href="/">
+        <button class="navigation-button">Return to Homepage</button>
+    </a>
+    <script src="/js/formatters/date_formatter.js"></script>
+    <script src="/js/formatters/currency_formatter.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@ const {faker} = require("@faker-js/faker");
 
 class CatalogService {
 
-    static populate_catalog_items = async function() {
+    static populate_catalog_items = function() {
         return new Promise(async (resolve, reject) => {
             let db_instance, db_connection, session;
             try {

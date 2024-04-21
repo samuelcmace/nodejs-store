@@ -1,5 +1,20 @@
 (() => {
 
+    let generate_fake_data_button = document.getElementById("generateFakeDataButton");
+
+    generate_fake_data_button.addEventListener("click", async () => {
+        let response = await fetch("/api/debug/data", {
+            method: "POST"
+        });
+
+        const result = await response.json();
+        if (result.outcome === "PASS") {
+            alert("Data Generated Successfully!");
+        } else {
+            alert(`${result.outcome}: ${result.message}`);
+        }
+    });
+
     let end_session_button = document.getElementById("endSessionDebugButton");
 
     end_session_button.addEventListener("click", async () => {
@@ -8,7 +23,7 @@
         });
 
         const result = await response.json();
-        if (result.outcome === "pass") {
+        if (result.outcome === "PASS") {
             alert("Session Cleared Successfully!");
         }
     });
