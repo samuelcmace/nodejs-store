@@ -2,11 +2,8 @@ name: Build Docker Image and Push to Docker Hub
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
-
-env:
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  release:
+    types: [released]
 
 jobs:
   build:
@@ -19,10 +16,7 @@ jobs:
 
       - name: Create Tag for Docker
         id: create_tag
-        run: |
-          current_date=$(date +%s)
-          current_branch=${{ env.BRANCH_NAME }}
-          echo "tag=${current_branch//\//-}-${current_date}" >> $GITHUB_OUTPUT
+        run: echo "tag=$(git describe --tags)" >> $GITHUB_OUTPUT
 
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag docker.io/samuelcmace/nodejs-store:${{ steps.create_tag.outputs.tag }}
