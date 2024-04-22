@@ -48,7 +48,7 @@ body {
 
 .order-container {
     display: flex;
-    max-width: 50em;
+    max-width: 65em;
     background-color: sandybrown;
     padding: 0.25em;
     border-radius: 0.5em;
@@ -60,5 +60,5 @@ body {
 }
 
 .order-contents td {
-    padding: 0.25em;
+    padding: 0.5em;
 }

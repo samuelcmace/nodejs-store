@@ -1,4 +1,5 @@
 const {CartService, AuthService} = require("../services");
+const {RatingService} = require("../services/rating");
 
 /**
  * Function to set up the API routes necessary to run the storefront application.
@@ -86,6 +87,34 @@ function setup_api_routes(app, is_prod_environment) {
             }).catch(registration_error => {
                 res.end(JSON.stringify({outcome: "FAIL", message: registration_error}));
             });
+        }
+    });
+
+    app.post("/api/catalog/rating", (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        let action = req.get("Action");
+        if(action === "Submit-Rating") {
+            let order_id = req.get("Order-ID");
+            let item_id = req.get("Item-ID");
+            let rating = req.get("Rating");
+            RatingService.set_rating_for_item(order_id, item_id, rating).then(result => {
+                res.end(JSON.stringify({outcome: "PASS", message: result}));
+            }).catch(error => {
+                res.end(JSON.stringify({outcome: "FAIL", message: error}));
+            })
+        }
+    });
+
+    app.get("/api/catalog/rating", (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        let action = req.get("Action");
+        if(action === "Get-Rating") {
+            let item_id = req.get("Item-ID");
+            RatingService.get_mean_rating_for_item(item_id).then(result => {
+                res.end(JSON.stringify({outcome: "PASS", message: result}));
+            }).catch(error => {
+                res.end(JSON.stringify({outcome: "FAIL", message: error}));
+            })
         }
     });
 
