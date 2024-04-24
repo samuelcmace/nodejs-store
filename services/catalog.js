@@ -52,7 +52,8 @@ class CatalogService {
 
                 for await(const element of cursor) {
                     let rating = await RatingService.get_mean_rating_for_item(element._id);
-                    element.rating = rating === "NONE" ? "No Ratings" : rating;
+                    element.rating = rating.mean_rating === "NONE" ? "No Ratings" : rating.mean_rating + "/5 Stars";
+                    element.rating_count = rating.rating_count === 1 ? "1 Rating" : rating.rating_count + " Ratings";
                     items.push(element);
                 }
 

@@ -23,7 +23,7 @@ class RatingService {
                     }
                 }, {
                     $group: {
-                        _id: "$item_id", average_item_rating: {$avg: "$rating"}
+                        _id: "$item_id", rating_count: {$sum: 1}, average_item_rating: {$avg: "$rating"}
                     }
                 }]);
 
@@ -33,11 +33,12 @@ class RatingService {
                 }
 
                 if (results.length === 0) {
-                    resolve("NONE");
+                    resolve({rating_count: 0, mean_rating: "NONE"});
                 } else if (results.length === 1) {
+                    let rating_count = results[0].rating_count;
                     let mean_rating = parseFloat(results[0].average_item_rating);
                     let rounded_mean_rating = Math.round(mean_rating * 2.0) / 2.0;
-                    resolve(rounded_mean_rating + "/5 Stars");
+                    resolve({rating_count: rating_count, mean_rating: mean_rating});
                 } else {
                     reject("Internal Error: Received more than one result for the mean rating! Aborting!");
                 }
