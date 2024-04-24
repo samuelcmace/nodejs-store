@@ -76,6 +76,12 @@ class CartService {
         });
     }
 
+    /**
+     * Helper method to safely remove all quantities of a specified an item from the shopping cart.
+     * @param shopping_cart The shopping cart object stored in the session.
+     * @param item_to_remove The item ID to be removed from the shopping cart.
+     * @returns {Promise<unknown>} A Promise to remove the item from the shopping cart.
+     */
     static remove_item_from_cart = function (shopping_cart, item_to_remove) {
         return new Promise((resolve, reject) => {
             if (Object.keys(shopping_cart).includes(item_to_remove)) {
@@ -87,6 +93,13 @@ class CartService {
         });
     }
 
+    /**
+     * Helper method to safely decrement the quantity of an item in the shopping cart. If the item quantity becomes 0,
+     * outright remove the item from the shopping cart.
+     * @param shopping_cart The shopping cart object stored in the session.
+     * @param item_to_decrement The item ID to be decremented inside the shopping cart.
+     * @returns {Promise<unknown>} A Promise to decrement the item inside the shopping cart.
+     */
     static decrement_cart = function (shopping_cart, item_to_decrement) {
         return new Promise((resolve, reject) => {
             if (Object.keys(shopping_cart).includes(item_to_decrement)) {

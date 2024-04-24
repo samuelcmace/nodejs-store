@@ -54,6 +54,9 @@ function setup_api_routes(app, is_prod_environment) {
         }
     });
 
+    /**
+     * API route to login or logout the specified user from the current session.
+     */
     app.get("/api/auth", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         let action = req.get("Action");
@@ -73,6 +76,9 @@ function setup_api_routes(app, is_prod_environment) {
         }
     });
 
+    /**
+     * API route to register a new user in the database and log them into the current session.
+     */
     app.post("/api/auth", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         let action = req.get("Action");
@@ -90,6 +96,9 @@ function setup_api_routes(app, is_prod_environment) {
         }
     });
 
+    /**
+     * API route to add a new rating for a specified order/item.
+     */
     app.post("/api/catalog/rating/order/:order_id/item/:item_id", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         let order_id = req.params.order_id;
@@ -102,6 +111,9 @@ function setup_api_routes(app, is_prod_environment) {
         });
     });
 
+    /**
+     * API route to fetch the mean rating for a given item from the database.
+     */
     app.get("/api/catalog/ratings/item/:id", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         let item_id = req.params.id;
@@ -112,6 +124,9 @@ function setup_api_routes(app, is_prod_environment) {
         });
     });
 
+    /**
+     * API route to fetch the ratings that correspond to a specific order.
+     */
     app.get("/api/catalog/rating/order/:id", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         let order_id = req.params.id;
@@ -122,6 +137,9 @@ function setup_api_routes(app, is_prod_environment) {
         });
     });
 
+    /**
+     * API route to fetch a specific rating order/item from the database.
+     */
     app.get("/api/catalog/rating/order/:order_id/item/:item_id", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         let order_id = req.params.order_id;
