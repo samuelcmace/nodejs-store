@@ -38,7 +38,7 @@ class RatingService {
                     let rating_count = results[0].rating_count;
                     let mean_rating = parseFloat(results[0].average_item_rating);
                     let rounded_mean_rating = Math.round(mean_rating * 2.0) / 2.0;
-                    resolve({rating_count: rating_count, mean_rating: mean_rating});
+                    resolve({rating_count: rating_count, mean_rating: rounded_mean_rating});
                 } else {
                     reject("Internal Error: Received more than one result for the mean rating! Aborting!");
                 }
