@@ -14,17 +14,26 @@
         let outputElement = document.getElementById("ratingOutput_" + elementIDSuffix);
         let submitElement = document.getElementById("submitButton_" + elementIDSuffix);
 
+        fetch(`/api/catalog/rating/order/${order_id}/item/${item_id}`).then(async response => {
+            let result = await response.json();
+            let ratings = result.message.ratings;
+            console.log(ratings);
+            if(ratings !== "NONE") {
+                sliderElement.value = ratings.rating;
+                outputElement.value = ratings.rating + " Stars";
+                submitElement.disabled = true;
+                sliderElement.disabled = true;
+            }
+        });
+
         sliderElement.addEventListener("input", () => {
             outputElement.value = sliderElement.value + " Stars";
         });
 
         submitElement.addEventListener("click", async () => {
             if (sliderElement.disabled === false) {
-                let response = await fetch("/api/catalog/rating", {
+                let response = await fetch(`/api/catalog/rating/order/${order_id}/item/${item_id}`, {
                     method: "POST", headers: {
-                        "Action": "Submit-Rating",
-                        "Item-ID": item_id,
-                        "Order-ID": order_id,
                         "Rating": sliderElement.value
                     }
                 });
@@ -32,6 +41,7 @@
                 let result = await response.json();
                 if (result.outcome === "PASS") {
                     sliderElement.disabled = true;
+                    submitElement.disabled = true;
                 } else {
                     alert(`There was an error in submitting your review: ${result.message}`);
                 }
@@ -42,4 +52,5 @@
 
         outputElement.value = sliderElement.value + " Stars";
     }
+
 })();

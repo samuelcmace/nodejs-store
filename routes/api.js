@@ -44,7 +44,7 @@ function setup_api_routes(app, is_prod_environment) {
             }).catch(error => {
                 res.end(JSON.stringify({outcome: "FAIL", message: error}));
             });
-        } else if(action === "Decrease-Quantity") {
+        } else if (action === "Decrease-Quantity") {
             let item_to_decrease_quantity = req.get("Item-ID");
             CartService.decrement_cart(req.session.cart, item_to_decrease_quantity).then(result => {
                 res.end(JSON.stringify({outcome: "PASS", message: result}));
@@ -58,13 +58,13 @@ function setup_api_routes(app, is_prod_environment) {
         res.setHeader('Content-Type', 'application/json');
         let action = req.get("Action");
         let username = req.get("Username");
-        if(action === "Login") {
-             AuthService.login_account(req.session, username).then(result => {
+        if (action === "Login") {
+            AuthService.login_account(req.session, username).then(result => {
                 res.end(JSON.stringify({outcome: "PASS", message: result}));
             }).catch(error => {
                 res.end(JSON.stringify({outcome: "FAIL", message: error}));
             });
-        } else if(action === "Logout") {
+        } else if (action === "Logout") {
             AuthService.logout_account(req.session).then(result => {
                 res.end(JSON.stringify({outcome: "PASS", message: result}));
             }).catch(error => {
@@ -77,7 +77,7 @@ function setup_api_routes(app, is_prod_environment) {
         res.setHeader('Content-Type', 'application/json');
         let action = req.get("Action");
         let username = req.get("Username");
-        if(action === "Register") {
+        if (action === "Register") {
             AuthService.register_account(req.session, username).then(registration_result => {
                 AuthService.login_account(req.session, username).then(login_result => {
                     res.end(JSON.stringify({outcome: "PASS", message: registration_result + " " + login_result}));
@@ -90,32 +90,47 @@ function setup_api_routes(app, is_prod_environment) {
         }
     });
 
-    app.post("/api/catalog/rating", (req, res) => {
+    app.post("/api/catalog/rating/order/:order_id/item/:item_id", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
-        let action = req.get("Action");
-        if(action === "Submit-Rating") {
-            let order_id = req.get("Order-ID");
-            let item_id = req.get("Item-ID");
-            let rating = req.get("Rating");
-            RatingService.set_rating_for_item(order_id, item_id, rating).then(result => {
-                res.end(JSON.stringify({outcome: "PASS", message: result}));
-            }).catch(error => {
-                res.end(JSON.stringify({outcome: "FAIL", message: error}));
-            })
-        }
+        let order_id = req.params.order_id;
+        let item_id = req.params.item_id;
+        let rating = req.get("Rating");
+        RatingService.set_rating_for_item(order_id, item_id, rating).then(result => {
+            res.end(JSON.stringify({outcome: "PASS", message: result}));
+        }).catch(error => {
+            res.end(JSON.stringify({outcome: "FAIL", message: error}));
+        });
     });
 
-    app.get("/api/catalog/rating", (req, res) => {
+    app.get("/api/catalog/ratings/item/:id", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
-        let action = req.get("Action");
-        if(action === "Get-Rating") {
-            let item_id = req.get("Item-ID");
-            RatingService.get_mean_rating_for_item(item_id).then(result => {
-                res.end(JSON.stringify({outcome: "PASS", message: result}));
-            }).catch(error => {
-                res.end(JSON.stringify({outcome: "FAIL", message: error}));
-            })
-        }
+        let item_id = req.params.id;
+        RatingService.get_mean_rating_for_item(item_id).then(result => {
+            res.end(JSON.stringify({outcome: "PASS", message: result}));
+        }).catch(error => {
+            res.end(JSON.stringify({outcome: "FAIL", message: error}));
+        });
+    });
+
+    app.get("/api/catalog/rating/order/:id", (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        let order_id = req.params.id;
+        RatingService.get_ratings_for_order(order_id).then(result => {
+            res.end(JSON.stringify({outcome: "PASS", message: {ratings: result}}));
+        }).catch(error => {
+            res.end(JSON.stringify({outcome: "FAIL", message: error}));
+        });
+    });
+
+    app.get("/api/catalog/rating/order/:order_id/item/:item_id", (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        let order_id = req.params.order_id;
+        let item_id = req.params.item_id;
+        RatingService.get_rating_for_item(order_id, item_id).then(result => {
+            res.end(JSON.stringify({outcome: "PASS", message: {ratings: result}}));
+        }).catch(error => {
+            res.end(JSON.stringify({outcome: "FAIL", message: error}));
+        });
     });
 
 }

@@ -1,6 +1,7 @@
 const {DBConnectionPool} = require("../database");
 
 const {AuthService} = require("./auth");
+const {RatingService} = require("./rating");
 
 /**
  * Service dealing with the user's shopping cart.
@@ -23,6 +24,8 @@ class CartService {
 
                 for await(const element of cursor) {
                     element.in_cart = shopping_cart[element._id].in_cart;
+                    let rating = await RatingService.get_mean_rating_for_item(element._id);
+                    element.rating = rating === "NONE" ? "No Ratings" : rating;
                     items.push(element);
                 }
 
@@ -136,14 +139,22 @@ class CartService {
                             shopping_cart[element._id].in_cart = requested_amount - available_amount;
                             items_removed_from_order = true;
                         }
-                        order_items.push({_id: element._id, name: element.name, unit_price: element.price, quantity: checked_out_amount, total_price: element.price * checked_out_amount});
+                        order_items.push({
+                            _id: element._id,
+                            name: element.name,
+                            unit_price: element.price,
+                            quantity: checked_out_amount,
+                            total_price: element.price * checked_out_amount
+                        });
                         await db_connection.db("catalog").collection("item").updateOne({"_id": element._id}, {$set: {on_hand: new_on_hand}}, {db_session});
                     }
                     let order_total = 0.00;
-                    for(let i = 0; i < order_items.length; i++) {
+                    for (let i = 0; i < order_items.length; i++) {
                         order_total += order_items[i].total_price;
                     }
-                    await db_connection.db("catalog").collection("order").insertOne({order_user: user_id, date: Date.now(), order_items: order_items, order_total: order_total});
+                    await db_connection.db("catalog").collection("order").insertOne({
+                        order_user: user_id, date: Date.now(), order_items: order_items, order_total: order_total
+                    });
                     if (items_removed_from_order) {
                         resolve("Unfortunately, due to lack of inventory levels, some items have been removed from your order. I apologize for any inconvenience this may have caused!");
                     } else {

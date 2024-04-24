@@ -1,5 +1,6 @@
 const {DBConnectionPool} = require("../database");
 const {faker} = require("@faker-js/faker");
+const {RatingService} = require("./rating");
 
 class CatalogService {
 
@@ -50,6 +51,8 @@ class CatalogService {
                 let cursor = db_connection.db("catalog").collection("item").find();
 
                 for await(const element of cursor) {
+                    let rating = await RatingService.get_mean_rating_for_item(element._id);
+                    element.rating = rating === "NONE" ? "No Ratings" : rating;
                     items.push(element);
                 }
 

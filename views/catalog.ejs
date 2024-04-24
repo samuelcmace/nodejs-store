@@ -16,6 +16,7 @@
             <div class="catalog-item" id="catalogItem<%= catalog[i]._id %>">
                 <p class="catalog-item-id">Item ID: <span><%= catalog[i]._id %></span></p>
                 <img class="catalog-item-image" src="<%= catalog[i].image %>" alt="Catalog Item Image">
+                <p class="catalog-item-rating"><%= catalog[i].rating %></p>
                 <p class="catalog-item-on-hand">On Hand: <%= catalog[i].on_hand %></p>
                 <p class="catalog-item-name"><%= catalog[i].name %></p>
                 <p class="catalog-item-price"><%= catalog[i].price %></p>

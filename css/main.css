@@ -51,6 +51,7 @@ body {
     max-width: 65em;
     background-color: sandybrown;
     padding: 0.25em;
+    margin: 1em 0;
     border-radius: 0.5em;
     border: 0.125em solid black;
 }

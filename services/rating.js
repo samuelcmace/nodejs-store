@@ -19,24 +19,27 @@ class RatingService {
 
                 let cursor = db_connection.db("catalog").collection("rating").aggregate([{
                     $match: {
-                        item_id: item_id
+                        item_id: {$eq: String(item_id)}
                     }
                 }, {
                     $group: {
-                        item_id: item_id, average_item_rating: {$avg: "rating"}
+                        _id: "$item_id", average_item_rating: {$avg: "$rating"}
                     }
                 }]);
 
                 let results = [];
-                for await(const element of cursor) {
+                for await (const element of cursor) {
                     results.push(element);
                 }
 
-                if (results.length !== 1) {
-                    resolve(0.0);
+                if (results.length === 0) {
+                    resolve("NONE");
+                } else if (results.length === 1) {
+                    let mean_rating = parseFloat(results[0].average_item_rating);
+                    let rounded_mean_rating = Math.round(mean_rating * 2.0) / 2.0;
+                    resolve(rounded_mean_rating + "/5 Stars");
                 } else {
-                    let mean_rating = parseInt(results[0].rating);
-                    resolve(mean_rating);
+                    reject("Internal Error: Received more than one result for the mean rating! Aborting!");
                 }
 
             } catch (exception) {
@@ -61,14 +64,15 @@ class RatingService {
                 await db_session.startTransaction();
 
                 let existing_rating = await RatingService.get_rating_for_item(order_id, item_id);
-                if (existing_rating !== null) {
+                if (existing_rating !== "NONE") {
                     reject(`Error: The rating for order number ${order_id} item number ${item_id} already exists!`);
                     await db_session.abortTransaction();
                 } else {
-                    let new_rating = parseInt(rating);
+                    let new_rating = parseFloat(rating);
                     db_connection.db("catalog").collection("rating").insertOne({
                         order_id: order_id, item_id: item_id, rating: new_rating
-                    }, {session: db_session});
+                    }, {db_session});
+                    resolve(`Rating submission for order ${order_id} item ${item_id} succeeded!`);
                     await db_session.commitTransaction();
                 }
             } catch (exception) {
@@ -87,7 +91,7 @@ class RatingService {
      */
     static get_rating_for_item = function (order_id, item_id) {
         return new Promise(async (resolve, reject) => {
-            let db_instance, db_connection, db_session;
+            let db_instance, db_connection;
             try {
                 db_instance = await DBConnectionPool.getInstance();
                 db_connection = db_instance.connection;
@@ -100,10 +104,34 @@ class RatingService {
                     results.push(element);
                 }
                 if (results.length !== 1) {
-                    reject("There was an error in querying the specified rating for the item!");
+                    resolve("NONE");
                 } else {
                     resolve(results[0]);
                 }
+            } catch (exception) {
+                reject(exception);
+            }
+        });
+    }
+
+    /**
+     * Helper method to fetch the ratings corresponding to the given order ID.
+     * @param order_id The order ID in question.
+     * @returns {Promise<Array>} A Promise to return an Array of ratings for the given order ID.
+     */
+    static get_ratings_for_order = function (order_id) {
+        return new Promise(async (resolve, reject) => {
+            let db_instance, db_connection;
+            try {
+                db_instance = await DBConnectionPool.getInstance();
+                db_connection = db_instance.connection;
+
+                let results = [];
+                let cursor = db_connection.db("catalog").collection("rating").find({order_id: order_id});
+                for await(const element of cursor) {
+                    results.push(element);
+                }
+                resolve(results);
             } catch (exception) {
                 reject(exception);
             }

@@ -1,5 +1,7 @@
 const {DBConnectionPool} = require("../database");
 const {AuthService} = require("./auth");
+const {RatingService} = require("./rating");
+const {tr} = require("@faker-js/faker");
 
 /**
  * Service dealing with the orders in the database.
@@ -30,7 +32,6 @@ class OrderService {
                             message: `Error: There is no order history for the specified user '${username}'!`
                         });
                     } else {
-                        let cursor = db_connection.db("catalog").collection("item").find({"_id": {$in: Object.keys(result).map(Number)}});
                         resolve({outcome: "PASS", message: {orders: result}});
                     }
                 } catch (exception) {
