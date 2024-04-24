@@ -1,8 +1,16 @@
 const {DBConnectionPool} = require("../database");
 const {faker} = require("@faker-js/faker");
+const {RatingService} = require("./rating");
 
+/**
+ * Service associated with the catalog and its corresponding items.
+ */
 class CatalogService {
 
+    /**
+     * Helper method to populate the catalog with random data from the faker API.
+     * @returns {Promise<unknown>} A Promise to populate the catalog with random data.
+     */
     static populate_catalog_items = function() {
         return new Promise(async (resolve, reject) => {
             let db_instance, db_connection, session;
@@ -40,6 +48,10 @@ class CatalogService {
         });
     }
 
+    /**
+     * Helper method to fetch all catalog items as they are stored in the database.
+     * @returns {Promise<Array>} A Promise to fetch an array of catalog items.
+     */
     static get_catalog_items = function() {
         return new Promise(async (resolve, reject) => {
             try {
@@ -50,6 +62,9 @@ class CatalogService {
                 let cursor = db_connection.db("catalog").collection("item").find();
 
                 for await(const element of cursor) {
+                    let rating = await RatingService.get_mean_rating_for_item(element._id);
+                    element.rating = rating.mean_rating === "NONE" ? "No Ratings" : rating.mean_rating + "/5 Stars";
+                    element.rating_count = rating.rating_count === 1 ? "1 Rating" : rating.rating_count + " Ratings";
                     items.push(element);
                 }
 

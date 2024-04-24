@@ -32,6 +32,9 @@ function setup_debug_routes(app) {
         }
     });
 
+    /**
+     * API route to update the shopping cart danerously from a debug context.
+     */
     app.put("/api/debug/cart", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         try {
@@ -64,6 +67,9 @@ function setup_debug_routes(app) {
         }
     });
 
+    /**
+     * API route to populate the database catalog with random data from the faker API.
+     */
     app.post("/api/debug/data", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         CatalogService.populate_catalog_items().then(result => {

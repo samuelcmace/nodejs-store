@@ -43,6 +43,9 @@ function setup_web_routes(app, is_prod_environment) {
         }
     });
 
+    /**
+     * Web route to view the order history for the logged in user.
+     */
     app.get("/orders", AuthFilter.authentication_filter, (req, res) => {
         if (!req.session.username) {
             res.render("error", "Error: It looks like you're not signed in. Please navigate to the authentication page to login.");

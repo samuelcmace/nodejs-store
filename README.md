@@ -15,6 +15,7 @@ Completed in partial fulfillment of the Advanced Database class at UW Green Bay.
       - [Debug Routes](#debug-routes)
     - [Filters](#filters)
     - [Database Connection](#database-connection)
+    - [Mean Rating Per Item: Logic Implementation](#mean-rating-per-item-logic-implementation)
   - [Environment Variables](#environment-variables)
 
 ## Running the Application
@@ -146,6 +147,9 @@ API when making a request which follows the standard HTTP header Pascal case not
   checking out.
 - `/api/auth` &ndash; accepts many different HTTP requests that deal with the authentication of the user. This may involve
   registering a new user, logging in a user, or logging a user out of the current session.
+- `/api/catalog/rating` &ndash; accepts many different HTTP requests dealing with reading or setting orders in the
+  database. In contrast to the other API routes that utilize HTTP Headers, the rating routes utilize API parameters
+  based on the order/item IDs.
 
 #### Debug Routes
 
@@ -167,6 +171,15 @@ The `/database` directory contains all the code needed to interact with the data
 are pre-programmed to go through the `DBConnectionPool` singleton object, which will return a single instance of
 the `DatabaseConnection`wherever it is needed in the application. This design pattern was chosen for the database as a
 means of preventing unnecessary concurrent connections to the database.
+
+### Mean Rating Per Item: Logic Implementation
+
+To implement the necessary rating system for the application rounded to the nearest half of a rating (on a 5-star
+scale), the mean score for the given item ID is first queried from the database using an aggregation pipeline. Then, the
+result is first _multiplied_ by two _before_ being rounded to the nearest whole number. Afterward, the rounded
+calculation is _divided_ by two. The end result should be divisible by one-half, and should meet the necessary rounding
+criteria required for a half-star rating based application. The rounding logic is accomplished through the standard
+`Math.round()` JavaScript API.
 
 ## Environment Variables
 

@@ -1,6 +1,7 @@
 const {DBConnectionPool} = require("../database");
 
 const {AuthService} = require("./auth");
+const {RatingService} = require("./rating");
 
 /**
  * Service dealing with the user's shopping cart.
@@ -23,6 +24,9 @@ class CartService {
 
                 for await(const element of cursor) {
                     element.in_cart = shopping_cart[element._id].in_cart;
+                    let rating = await RatingService.get_mean_rating_for_item(element._id);
+                    element.rating = rating.mean_rating === "NONE" ? "No Ratings" : rating.mean_rating + "/5 Stars";
+                    element.rating_count = rating.rating_count === 1 ? "1 Rating" : rating.rating_count + " Ratings";
                     items.push(element);
                 }
 
@@ -72,6 +76,12 @@ class CartService {
         });
     }
 
+    /**
+     * Helper method to safely remove all quantities of a specified an item from the shopping cart.
+     * @param shopping_cart The shopping cart object stored in the session.
+     * @param item_to_remove The item ID to be removed from the shopping cart.
+     * @returns {Promise<unknown>} A Promise to remove the item from the shopping cart.
+     */
     static remove_item_from_cart = function (shopping_cart, item_to_remove) {
         return new Promise((resolve, reject) => {
             if (Object.keys(shopping_cart).includes(item_to_remove)) {
@@ -83,6 +93,13 @@ class CartService {
         });
     }
 
+    /**
+     * Helper method to safely decrement the quantity of an item in the shopping cart. If the item quantity becomes 0,
+     * outright remove the item from the shopping cart.
+     * @param shopping_cart The shopping cart object stored in the session.
+     * @param item_to_decrement The item ID to be decremented inside the shopping cart.
+     * @returns {Promise<unknown>} A Promise to decrement the item inside the shopping cart.
+     */
     static decrement_cart = function (shopping_cart, item_to_decrement) {
         return new Promise((resolve, reject) => {
             if (Object.keys(shopping_cart).includes(item_to_decrement)) {
@@ -136,14 +153,22 @@ class CartService {
                             shopping_cart[element._id].in_cart = requested_amount - available_amount;
                             items_removed_from_order = true;
                         }
-                        order_items.push({_id: element._id, name: element.name, unit_price: element.price, quantity: checked_out_amount, total_price: element.price * checked_out_amount});
+                        order_items.push({
+                            _id: element._id,
+                            name: element.name,
+                            unit_price: element.price,
+                            quantity: checked_out_amount,
+                            total_price: element.price * checked_out_amount
+                        });
                         await db_connection.db("catalog").collection("item").updateOne({"_id": element._id}, {$set: {on_hand: new_on_hand}}, {db_session});
                     }
                     let order_total = 0.00;
-                    for(let i = 0; i < order_items.length; i++) {
+                    for (let i = 0; i < order_items.length; i++) {
                         order_total += order_items[i].total_price;
                     }
-                    await db_connection.db("catalog").collection("order").insertOne({order_user: user_id, date: Date.now(), order_items: order_items, order_total: order_total});
+                    await db_connection.db("catalog").collection("order").insertOne({
+                        order_user: user_id, date: Date.now(), order_items: order_items, order_total: order_total
+                    });
                     if (items_removed_from_order) {
                         resolve("Unfortunately, due to lack of inventory levels, some items have been removed from your order. I apologize for any inconvenience this may have caused!");
                     } else {

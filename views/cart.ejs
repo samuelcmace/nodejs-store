@@ -16,6 +16,8 @@
         <div class="catalog-item" id="catalogItem<%= cart[i]._id %>">
             <p class="catalog-item-id">Item ID: <span><%= cart[i]._id %></span></p>
             <img class="catalog-item-image" src="<%= cart[i].image %>" alt="Catalog Item Image">
+            <p class="catalog-item-rating"><%= cart[i].rating %></p>
+            <p class="catalog-item-rating-count"><%= cart[i].rating_count %></p>
             <p class="catalog-item-in-cart">In Cart: <%= cart[i].in_cart %></p>
             <div class="in-cart-quantity-buttons">
                 <button id="increaseQuantity<%= cart[i]._id %>" class="in-cart-increase-quantity-button item-button">➕</button>
