@@ -18,15 +18,18 @@
             let result = await response.json();
             let ratings = result.message.ratings;
             console.log(ratings);
-            if(ratings !== "NONE") {
+            if (ratings !== "NONE") {
                 sliderElement.value = ratings.rating;
                 outputElement.value = ratings.rating + " Stars";
-                submitElement.disabled = true;
                 sliderElement.disabled = true;
+            } else {
+                outputElement.value = "Not Yet Rated";
             }
+            submitElement.disabled = true;
         });
 
         sliderElement.addEventListener("input", () => {
+            submitElement.disabled = false;
             outputElement.value = sliderElement.value + " Stars";
         });
 
