@@ -1,5 +1,7 @@
 # Node.js Store Application
 
+[![Build Docker Image and Push to Docker Hub](https://github.com/samuelcmace/nodejs-store/actions/workflows/push_dockerfile.yaml/badge.svg)](https://github.com/samuelcmace/nodejs-store/actions/workflows/push_dockerfile.yaml)
+
 Full-Stack Store Application Written in Node.js, Express.js, and MongoDB.
 
 Completed in partial fulfillment of the Advanced Database class at UW Green Bay.
